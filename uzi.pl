@@ -7,10 +7,10 @@
 #
 # TODO:
 # - console mode
-#   - create user
+#   + create user
 #   + choose free uid
 #   + generate random password
-#   - copy home dir from template
+#   + copy home dir from template
 #   - store user data in root's catalogue
 #   + check if uid is taken
 #   - change user group
@@ -66,6 +66,12 @@ if ($command eq "-h" or $command eq "--help") {
 	}
 } elsif ($command eq "interactive") {
 	launch;
+} elsif ($command eq "create") {
+	my ($parameters, $result);
+	$parameters = join(" ", @ARGV);
+	$result = `useradd $parameters 2>&1`;
+	$result =~ s/useradd/uzi.pl create/g;
+	say $result;
 }
 
 sub free_uid {
