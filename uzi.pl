@@ -14,7 +14,7 @@
 #   - store user data in root's catalogue
 #   + check if uid is taken
 #   - change user group
-#   - delete user
+#   + delete user
 # - interactive mode
 #   - create user
 #   - choose free uid
@@ -71,6 +71,12 @@ if ($command eq "-h" or $command eq "--help") {
 	$parameters = join(" ", @ARGV);
 	$result = `useradd $parameters 2>&1`;
 	$result =~ s/useradd/uzi.pl create/g;
+	say $result;
+} elsif ($command eq "delete") {
+	my ($parameters, $result);
+	$parameters = join(" ", @ARGV);
+	$result = `userdel $parameters 2>&1`;
+	$result =~ s/userdel/uzi.pl delete/g;
 	say $result;
 }
 
