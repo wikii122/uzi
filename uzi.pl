@@ -8,7 +8,7 @@
 # TODO:
 # - console mode
 #   - create user
-#   - choose free uid
+#   + choose free uid
 #   + generate random password
 #   - copy home dir from template
 #   - store user data in root's catalogue
@@ -56,7 +56,29 @@ if ($command eq "-h" or $command eq "--help") {
 	my $command = shift(@ARGV) or die $help;
 	if ($command eq "password") {
 		say Crypt::RandPasswd->chars(8, 20);
+	} elsif ($command eq "uid") {
+		my $uid = shift || free_uid();
+		if (check_uid($uid) != 0) {
+			say $uid . " is taken";
+		} else {
+			say $uid . " is free";
+		}
 	}
 } elsif ($command eq "interactive") {
 	launch;
+}
+
+sub free_uid {
+	# TODO
+	return 4;
+}
+
+sub check_uid {
+	my $checked = shift;
+	while (my ($name, $pass, $uid, $gid, $quota, $comment, $gcos, $dir, $shell, $expire) = getpwent()) {
+		if ($uid == $checked) {
+			return 1;
+		}
+	}
+	return 0;
 }
