@@ -12,7 +12,7 @@
 #   + generate random password
 #   - copy home dir from template
 #   - store user data in root's catalogue
-#   - check if uid is taken
+#   + check if uid is taken
 #   - change user group
 #   - delete user
 # - interactive mode
@@ -69,8 +69,12 @@ if ($command eq "-h" or $command eq "--help") {
 }
 
 sub free_uid {
-	# TODO
-	return 4;
+	my $checked = 1;
+	while (check_uid($checked)) {
+		$checked += 1;
+	}
+
+	return $checked;
 }
 
 sub check_uid {
