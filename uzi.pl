@@ -22,7 +22,7 @@
 #   - copy home dir from template
 #   - store user data in root's catalogue
 #   - check if uid is taken
-#   - change user group
+#   + change user group
 #   - delete user
 
 use warnings;
@@ -59,9 +59,9 @@ sub launch {
 	$user_rest -> insert('end', @users);
 
 	our %group_radio;
-	our %group_choices;
+	our %group_checked;
 	for my $group (@groups) {
-		$group_radio{$group} = $tab2 -> Checkbutton(-text=> $group, -variable => \$group_choices{$group}, -command => set_group($group)) -> pack();
+		$group_radio{$group} = $tab2 -> Checkbutton(-text=> $group, -command => set_group($group)) -> pack();
 	}
 
 	sub refresh_groups {
@@ -69,23 +69,26 @@ sub launch {
 		@user_groups = split ' ', $user_groups[1];
 		for my $key (keys %group_radio) {
 			$group_radio{$key} -> deselect();
+			$group_checked{$key} = 0;
 		}
 
 		for my $key (@user_groups) {
 			$group_radio{$key} -> select();
+			$group_checked{$key} = 1;
 		}
 	}
 
 	sub set_group {
-		our $group = shift;
-		sub f {
-			if ($group_choices{$group}) {
-				say "gpasswd -a $user $group";
+		my $group = shift;
+		return sub {
+			if ($group_checked{$group}) {
+				`gpasswd -d $user $group`;
+				$group_checked{$group} = 0;
 			} else {
-				say "gpasswd -d $user $group";
+				`gpasswd -a $user $group`;
+				$group_checked{$group} = 1;
 			}
 		}
-		return \&f;
 	}
 
 	refresh_groups();
