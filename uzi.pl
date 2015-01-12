@@ -13,7 +13,7 @@
 #   + copy home dir from template
 #   - store user data in root's catalogue
 #   + check if uid is taken
-#   - change user group
+#   + change user group
 #   + delete user
 # - interactive mode
 #   - create user
@@ -27,11 +27,71 @@
 
 use warnings;
 use strict;
-use v5.10;
+use v5.14;
+use Tk;
+use Tk::BrowseEntry;
+use Tk::NoteBook;
 use Crypt::RandPasswd;
 
 sub launch {
-	say "GUI";
+	my $window = new MainWindow;
+	my $nb = $window -> NoteBook( )-> pack();
+	my $tab1 = $nb->add('create', -label => 'Create');
+	my $tab2 = $nb->add('groups', -label => 'Groups');
+	my $tab3 = $nb->add('delete', -label => 'Delete');
+
+	my (@users, @groups);
+
+	while (my ($name, $pass, $uid, $gid, $quota, $comment, $gcos, $dir, $shell, $expire) = getpwent()) {
+		push @users, $name;
+	}
+
+	open my $FILE, "/etc/group";
+	for my $line (<$FILE>) {
+		my @elements = split ':', $line;
+		push @groups, $elements[0];
+	}
+
+	# Tab 2 init - list of users and list of groups.
+	our $user = $users[1];
+	my $user_select = $tab2 ->BrowseEntry(-label => "User", -variable => \$user, -command => \&refresh_groups) -> pack();
+	my $user_rest = $user_select -> Subwidget('slistbox');
+	$user_rest -> insert('end', @users);
+
+	our %group_radio;
+	our %group_choices;
+	for my $group (@groups) {
+		$group_radio{$group} = $tab2 -> Checkbutton(-text=> $group, -variable => \$group_choices{$group}, -command => set_group($group)) -> pack();
+	}
+
+	sub refresh_groups {
+		my @user_groups = split ':', `groups $user`;
+		@user_groups = split ' ', $user_groups[1];
+		for my $key (keys %group_radio) {
+			$group_radio{$key} -> deselect();
+		}
+
+		for my $key (@user_groups) {
+			$group_radio{$key} -> select();
+		}
+	}
+
+	sub set_group {
+		our $group = shift;
+		sub f {
+			if ($group_choices{$group}) {
+				say "gpasswd -a $user $group";
+			} else {
+				say "gpasswd -d $user $group";
+			}
+		}
+		return \&f;
+	}
+
+	refresh_groups();
+
+	MainLoop;
+
 	exit 0;
 }
 
@@ -42,7 +102,7 @@ my $help = <<END;
 
 	Help:
 		create - creates user
-		modify - modifies user
+		group - modifies users groups
 		delete - deletes user
 		check - checks uid or creates new password.
 		interactive - start GUI
@@ -77,6 +137,12 @@ if ($command eq "-h" or $command eq "--help") {
 	$parameters = join(" ", @ARGV);
 	$result = `userdel $parameters 2>&1`;
 	$result =~ s/userdel/uzi.pl delete/g;
+	say $result;
+} elsif ($command eq "group") {
+	my ($parameters, $result);
+	$parameters = join(" ", @ARGV);
+	$result = `gpasswd $parameters 2>&1`;
+	$result =~ s/gpasswd/uzi.pl group/g;
 	say $result;
 }
 
