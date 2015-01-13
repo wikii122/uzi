@@ -6,24 +6,16 @@
 # Refer to README file for project description.
 #
 # TODO:
-# - console mode
-#   + create user
-#   + choose free uid
-#   + generate random password
-#   + copy home dir from template
-#   - store user data in root's catalogue
-#   + check if uid is taken
-#   + change user group
-#   + delete user
-# - interactive mode
-#   - create user
-#   - choose free uid
-#   - generate random password
-#   - copy home dir from template
-#   - store user data in root's catalogue
-#   - check if uid is taken
-#   + change user group
-#   - delete user
+# [+] console mode
+# [-] interactive mode
+#  [-] create user
+#  [-] choose free uid
+#  [-] generate random password
+#  [-] copy home dir from template
+#  [-] store user data in root's catalogue
+#  [-] check if uid is taken
+#  [+] change user group
+#  [+] delete user
 
 use warnings;
 use strict;
@@ -52,6 +44,7 @@ sub launch {
 		push @groups, $elements[0];
 	}
 
+	## USER GROUP MODIFICATION
 	# Tab 2 init - list of users and list of groups.
 	our $user = $users[1];
 	my $user_select = $tab2 ->BrowseEntry(-label => "User", -variable => \$user, -command => \&refresh_groups) -> pack();
@@ -89,6 +82,17 @@ sub launch {
 				$group_checked{$group} = 1;
 			}
 		}
+	}
+
+	## USER DELETION
+	our $user2 = $users[1];
+	my $user_select2 = $tab3 -> BrowseEntry(-label => "User", -variable => \$user2) -> pack();
+	my $user_delete_trigger = $tab3 -> Button(-text => "Delete", -command => \&delete_user) -> pack();
+	my $user_rest = $user_select2 -> Subwidget('slistbox');
+	$user_rest -> insert('end', @users);
+
+	sub delete_user {
+		`userdel $user2`;
 	}
 
 	refresh_groups();
