@@ -4,18 +4,6 @@
 # Anno Domini 2015
 #
 # Refer to README file for project description.
-#
-# TODO:
-# [+] console mode
-# [-] interactive mode
-#  [-] create user
-#  [-] choose free uid
-#  [-] generate random password
-#  [-] copy home dir from template
-#  [-] store user data in root's catalogue
-#  [-] check if uid is taken
-#  [+] change user group
-#  [+] delete user
 
 use warnings;
 use strict;
