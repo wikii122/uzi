@@ -76,8 +76,8 @@ sub launch {
 	our $user2 = $users[1];
 	my $user_select2 = $tab3 -> BrowseEntry(-label => "User", -variable => \$user2) -> pack();
 	my $user_delete_trigger = $tab3 -> Button(-text => "Delete", -command => \&delete_user) -> pack();
-	my $user_rest = $user_select2 -> Subwidget('slistbox');
-	$user_rest -> insert('end', @users);
+	my $user_rest2 = $user_select2 -> Subwidget('slistbox');
+	$user_rest2 -> insert('end', @users);
 
 	sub delete_user {
 		`userdel $user2`;
@@ -110,7 +110,15 @@ if ($command eq "-h" or $command eq "--help") {
 } elsif ($command eq "check") {
 	my $command = shift(@ARGV) or die $help;
 	if ($command eq "password") {
-		say Crypt::RandPasswd->chars(8, 20);
+		my $pass = Crypt::RandPasswd->chars(8, 20);
+        my $crypt = `openssl passwd -crypt "\Q$pass\E"`;
+        my $sha1 = `sha1pass "\Q$pass\E"`;
+        say "Password: " . $pass;
+        print "Crypt: $crypt";
+        print "SHA-1: $sha1";
+        my $salt = Crypt::RandPasswd->chars(2, 6);
+        say "SHA-512: " . crypt($pass, "\$6\$$salt\$")
+         
 	} elsif ($command eq "uid") {
 		my $uid = shift || free_uid();
 		if (check_uid($uid) != 0) {
