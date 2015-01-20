@@ -13,6 +13,9 @@ use Tk::BrowseEntry;
 use Tk::NoteBook;
 use Crypt::RandPasswd;
 
+if ($> != 0) {
+    die "You need  to be root to run this program.";
+}
 sub launch {
 	my $window = new MainWindow;
 	my $nb = $window -> NoteBook( )-> pack();
